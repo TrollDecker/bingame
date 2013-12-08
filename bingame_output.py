@@ -30,6 +30,7 @@ def print_chain(answer_chain, number, error_count):
 
 # Provide an intro explaining how to play.
 def intro():
+	os.system("cls" if os.name == "nt" else "clear")
 	intro_text = ""
 	intro_text += "How to play\n"
 	intro_text += "===========\n"

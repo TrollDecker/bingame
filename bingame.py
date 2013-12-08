@@ -20,7 +20,7 @@ from bingame_maths import get_remainder, half_number
 from bingame_output import print_chain, intro
 from bingame_grading import grade
 
-number = 0                        # Randomly generated, between 1 and 1024. The player must gradually find the binary value of this number.
+number = 0                        # Randomly generated, between 1 and 2048. The player must gradually find the binary value of this number.
 progress = 0                      # The current number that must be divided by 2 to continue. Initially the same as "number".
 answer = 0                        # The player's answer.
 remainder = 0                     # The remainder from their answer. Can only ever be 1 or 0.
@@ -34,7 +34,7 @@ keep_playing = "y"                # When the player finishes, they are asked to 
 intro()
 
 while keep_playing != "n":
-	number = random.randint(1, 1024)
+	number = random.randint(1, 2048)
 	progress = number
 	answer = 0
 	remainder = 0
