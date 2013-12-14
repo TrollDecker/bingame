@@ -17,20 +17,12 @@
 
 import os
 
-# Clears the screen and outputs the player's current progress, and their current error count.
-def print_chain(answer_chain, number, error_count):
+def clear_screen():
 	# Clears the screen, using the operating system command "cls" in Windows and "clear" in Unix-likes.
 	os.system("cls" if os.name == "nt" else "clear")
-	print str(number)
-	print "-----------"
-	for answer in answer_chain:
-		print str(answer[0]) + " r" + str(answer[1])
-	print ""
-	print "Errors: " + str(error_count)
 
-# Provide an intro explaining how to play.
-def intro():
-	os.system("cls" if os.name == "nt" else "clear")
+# Need to build the intro first...
+def build_intro():
 	intro_text = ""
 	intro_text += "How to play\n"
 	intro_text += "===========\n"
@@ -44,5 +36,7 @@ def intro():
 	intro_text += "reciting all of the remainders in REVERSE order. When you get it right, you'll\n"
 	intro_text += "be graded on the errors you've made along the way."
 	
-	print intro_text
-	raw_input("Got that? Hit enter to begin.")
+	return intro_text
+
+def build_answer(answer):
+	return str(answer[0]) + " r" + str(answer[1])

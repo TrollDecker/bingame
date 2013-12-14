@@ -17,7 +17,7 @@
 
 import random
 from bingame_maths import get_remainder, half_number
-from bingame_output import print_chain, intro
+from bingame_output_cli import cli_print_chain, cli_intro
 from bingame_grading import grade
 
 number = 0                        # Randomly generated, between 1 and 2048. The player must gradually find the binary value of this number.
@@ -31,7 +31,7 @@ error_count = 0                   # Counts the number of errors a player makes i
 
 keep_playing = "y"                # When the player finishes, they are asked to go again. If they answer "n" the following loop ends and in turn the program.
 
-intro()
+cli_intro()
 
 while keep_playing != "n":
 	number = random.randint(1, 2048)
@@ -46,7 +46,7 @@ while keep_playing != "n":
 	while progress > 0:
 		while True:
 			# Clear the screen and print the current progress.
-			print_chain(answer_chain, number, error_count)
+			cli_print_chain(answer_chain, number, error_count)
 			# Try to ask the player for an answer and convert it to integer.
 			try:
 				answer = int(raw_input(str(progress) + " / 2 = "))
