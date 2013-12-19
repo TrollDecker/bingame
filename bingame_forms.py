@@ -22,8 +22,9 @@ from bingame_grading import grade
 # Class to store data relevant to this form.
 # error_count will need to be accessible from outside this form, though.
 class GameMain():
-	def __init__(self, forms):
+	def __init__(self, forms, apps):
 		self.forms = forms                              # Need to carry the whole dictionary across every damn class.
+		self.apps = apps
 		self.parent = self.forms["root"]                # root is the parent of all widgets created in this class.
 		
 		self.number = random.randint(1, 2048)			# Randomly generated, between 1 and 2048. The player must gradually find the binary value of this number.
@@ -45,32 +46,32 @@ class GameMain():
 		self.canAnswers.place(bordermode = "outside", x = 5, y = 5, width = 190, height = 190)
 		
 		# Label to visually idenitfy the error counter.
-		self.lblErrorsTag = Tkinter.Label(self.parent, bg = "blue", anchor = "w", text = "Errors:")
+		self.lblErrorsTag = Tkinter.Label(self.parent, anchor = "w", text = "Errors:")
 		self.lblErrorsTag.place(bordermode = "outside", x = 5, y = 200, width = 145, height = 25)
 		
 		# The error counter itself. It's a label, so requires a StringVar to be assigned to the widget's 'textvariable' property.
 		# It's awkward like that.
 		self.error_value = Tkinter.StringVar()
 		self.error_value.set(str(self.error_count))
-		self.lblErrors = Tkinter.Label(self.parent, bg = "red", anchor = "w", textvariable = self.error_value)
+		self.lblErrors = Tkinter.Label(self.parent, anchor = "w", textvariable = self.error_value)
 		self.lblErrors.place(bordermode = "outside", x = 155, y = 200, width = 40, height = 25)
 		
 		# Label to hold the last correct answer. Saves some confusion by having it right next to the answer entry boxes.
 		self.last_answer_value = Tkinter.StringVar()
 		self.last_answer_value.set(str(self.progress))
-		self.lblLastAnswer = Tkinter.Label(self.parent, bg = "green", anchor = "w", textvariable = self.last_answer_value)
+		self.lblLastAnswer = Tkinter.Label(self.parent, anchor = "w", textvariable = self.last_answer_value)
 		self.lblLastAnswer.place(bordermode = "outside", x = 5, y = 230, width = 60, height = 25)
 
 		# Entry box to accept the answer rounded down to the neared whole.
-		self.entAnswer = Tkinter.Entry(self.parent, bg = "pink", justify = "center")
+		self.entAnswer = Tkinter.Entry(self.parent, justify = "center")
 		self.entAnswer.place(bordermode = "outside", x = 70, y = 230, width = 105, height = 25)
 
 		# Entry box to accept the remainder left after working out the answer.
-		self.entRemainder = Tkinter.Entry(self.parent, bg = "orange", justify = "center")
+		self.entRemainder = Tkinter.Entry(self.parent, justify = "center")
 		self.entRemainder.place(bordermode = "outside", x = 175, y = 230, width = 20, height = 25)
 
 		# A big ol' button to submit the player's answer.
-		self.btnSubmit = Tkinter.Button(self.parent, bg = "blue", text = "Submit", command = self.submit_answer)
+		self.btnSubmit = Tkinter.Button(self.parent, text = "Submit", command = self.submit_answer)
 		self.btnSubmit.place(bordermode = "outside", x = 5, y = 260, width = 190, height = 35)
 		
 	def submit_answer(self):
@@ -100,15 +101,16 @@ class GameMain():
 		
 		# If the player has reached 0, it's time to bring forth the binary entry form.
 		if self.progress == 0:
-			binary_entry(self.forms, self)
+			binary_entry(self.forms, self.apps)
 
 class EnterBinary():
-	def __init__ (self, forms, game_app):
+	def __init__ (self, forms, apps):
 		self.forms = forms
+		self.apps = apps
 		self.parent = forms["binary"]					# binary being the parent form for every widget here.
-		self.game_app = game_app
+		self.apps["game"] = apps["game"]
 
-		self.final_binary = bin(game_app.number)		# The final binary value representing the number.
+		self.final_binary = bin(apps["game"].number)	# The final binary value representing the number.
 		self.binary_answer = ""							# The player's attempt at entering the binary value.
 		
 		self.init_ui()
@@ -119,11 +121,11 @@ class EnterBinary():
 		
 		# The entry box for the player's binary answer. The player needs to look back on their answers and enter all
 		# of the remainders from the last one up to the first.
-		self.entBinary = Tkinter.Entry(self.parent, bg = "red", justify = "center")
+		self.entBinary = Tkinter.Entry(self.parent, justify = "center")
 		self.entBinary.place(bordermode = "outside", x = 5, y = 5, width = 195, height = 25)
 		
 		# Button that does what it says on the tin: submits the answer.
-		self.btnSubmit = Tkinter.Button(self.parent, bg = "blue", text = "Submit", command = self.submit_answer)
+		self.btnSubmit = Tkinter.Button(self.parent, text = "Submit", command = self.submit_answer)
 		self.btnSubmit.place(bordermode = "outside", x = 205, y = 5, width = 90, height = 25)
 
 	def submit_answer(self):
@@ -134,48 +136,70 @@ class EnterBinary():
 		# If the answer's correct, call the scorecard window.
 		# Otherwise, increase the error counter by 1 and update the main window accordingly.
 		if self.binary_answer == self.final_binary:
-			scorecard(self.forms,self.game_app)
+			scorecard(self.forms,self.apps)
 		else:
-			self.game_app.error_count += 1
-			self.game_app.error_value.set(str(self.game_app.error_count))
+			self.apps["game"].error_count += 1
+			self.apps["game"].error_value.set(str(self.apps["game"].error_count))
 
 class FinalScore():
-	def __init__ (self, forms, game_app):
+	def __init__ (self, forms, apps):
 		self.forms = forms
+		self.apps = apps
 		self.parent = forms["scorecard"]				# scorecard is the parent for all widgets in this class.
 		
-		self.error_count = game_app.error_count			# Pass the error counter to one local to this window.
+		self.error_count = apps["game"].error_count		# Pass the error counter to one local to this window.
 		self.grade = grade(self.error_count)			# Obtain a grade based on the number of errors made by the player.
 		
 		# Get rid of the root and binary forms. They are no longer needed.
 		forms["root"].destroy()
+		del(apps["game"])
 		forms["binary"].destroy()
+		del(apps["binary"])
 		
 		self.init_ui()
 		
 	def init_ui(self):
 		self.parent.title("Scorecard")
-		self.parent.geometry("300x70+400+150")
+		self.parent.geometry("300x100+400+150")
 		
 		# Label to show the player's error count, and the grade determined from that number.
-		self.lblScore = Tkinter.Label(self.parent, bg = "green", anchor = "center", text = "Errors made:\n" + str(self.error_count) + "\nYour grade:\n" + self.grade)
+		self.lblScore = Tkinter.Label(self.parent, anchor = "center", text = "Errors made:\n" + str(self.error_count) + "\nYour grade:\n" + self.grade)
 		self.lblScore.place(bordermode = "outside", x = 5, y = 5, width = 290, height = 60)
 		
+		# Button to play again.
+		self.btnPlayAgain = Tkinter.Button(self.parent, text = "Play again", command = self.play_again)
+		self.btnPlayAgain.place(bordermode = "outside", x = 5, y = 70, width = 140, height = 25)
+		
+		# Button to quit.
+		self.btnQuit = Tkinter.Button(self.parent, text = "Exit", command = self.quit_game)
+		self.btnQuit.place(bordermode = "outside", x = 155, y = 70, width = 140, height = 25)
+	
+	# Destroys the window and deletes this object, effectively ending the program.
+	def quit_game(self):
+		self.parent.destroy()
+		del(self)
+	
+	# Destroys this window and spawns a new game window.
+	def play_again(self):
+		self.parent.destroy()
+		main()
+		del(self)
 
 def main():
-	# Create a dictionary to store all the forms. It's easier to pass a whole dict than it is to pass each individual form.
+	# Create dictionaries to store all the forms and widget classes. It's easier to pass a whole dict than it is to pass each individual form.
 	# Cleaner too.
 	forms = {}
+	apps = {}
 	forms["root"] = Tkinter.Tk()						# Create a new window and assign it to the entry 'root' in the dict.
-	game_app = GameMain(forms)							# Create an object based on the GameMain class, which will create all the needed widgets and variables.
+	apps["game"] = GameMain(forms, apps)				# Create an object based on the GameMain class, which will create all the needed widgets and variables.
 	forms["root"].mainloop()							# Commence the event-loop.
 
-def binary_entry(forms, game_app):
+def binary_entry(forms, apps):
 	forms["binary"] = Tkinter.Tk()
-	binary_app = EnterBinary(forms, game_app)
+	apps["binary"] = EnterBinary(forms, apps)
 	forms["binary"].mainloop()
 
-def scorecard(forms, game_app):
+def scorecard(forms, apps):
 	forms["scorecard"] = Tkinter.Tk()
-	scorecard_app = FinalScore(forms, game_app)
+	apps["scorecard"] = FinalScore(forms, apps)
 	forms["scorecard"].mainloop()

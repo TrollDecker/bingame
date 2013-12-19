@@ -15,7 +15,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from bingame_output_cli import cli_print_chain, cli_intro
 from bingame_forms import *
 
 if __name__ == "__main__":
